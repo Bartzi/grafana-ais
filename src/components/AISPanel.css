@@ -1,0 +1,16 @@
+.parent {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+}
+
+.legend {
+    background: black;
+    flex-basis: 3%;
+}
