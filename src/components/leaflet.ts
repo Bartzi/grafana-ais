@@ -1,4 +1,6 @@
 import L from "leaflet";
+import GarsICON from "./gars_icon";
+import ShipIcon from "./ship_icon";
 
 const proto_initIcon = L.Marker.prototype._initIcon;
 const proto_setPos = L.Marker.prototype._setPos;
@@ -56,15 +58,15 @@ export const MAP_TILE = L.tileLayer(
   );
 
 
-export function createIcon(iconName: 'GARS' | 'SHIP', className=''): L.Icon {
-    let options: L.IconOptions = {iconUrl: ''};
+export function createIcon(iconName: 'GARS' | 'SHIP', color='black', className=''): L.DivIcon {
+    let options: L.DivIconOptions = {iconUrl: ''};
     switch (iconName) {
         case 'GARS':
-            options.iconUrl = '/public/plugins/dlr-ais-panel/img/gars.svg';
+            options.html = GarsICON(color);
             options.iconSize = [15, 45];
             break;
         case 'SHIP':
-            options.iconUrl = '/public/plugins/dlr-ais-panel/img/triangle.svg';
+            options.html = ShipIcon(color);
             options.iconSize = [20, 20];
             options.iconAnchor = [10, 10];
             break;
@@ -72,9 +74,9 @@ export function createIcon(iconName: 'GARS' | 'SHIP', className=''): L.Icon {
             break;
     }
     options.className = className;
-    return L.icon(options);
+    return L.divIcon(options);
 }
 
-export function createMarker(latitude: number, longitude: number, icon: L.Icon, rotationAngle=0, rotationOrigin='center'): L.Marker {
+export function createMarker(latitude: number, longitude: number, icon: L.DivIcon, rotationAngle=0, rotationOrigin='center'): L.Marker {
     return L.marker([latitude, longitude], {icon: icon, rotationAngle: rotationAngle, rotationOrigin: rotationOrigin});
 }

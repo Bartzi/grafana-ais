@@ -30,8 +30,14 @@ function formatLocations(data: DataFrame[]): ShipLocation[] {
     }
     const latLons = zip([latitudes, longitudes]);
     const name = shipData.fields.find((field) => field.name === "shipname")?.values.find((value) => value !== 'Unknown') || 'Unknown';
+    const mmsiData = shipData.fields.find((field) => field.name === "mmsi")?.values;
+    let mmsi = '';
+    if (mmsiData && mmsiData.length > 0) {
+      mmsi = mmsiData[0];
+    }
     locations.push({
       'shipName': name,
+      'mmsi': mmsi,
       'latlngs': latLons
     })
   }
@@ -60,8 +66,8 @@ function showShipName(layer: L.Layer, text: string, map: L.Map) {
 }
 
 
-function shipNameToColor(shipName: string, theme: GrafanaTheme2): string {
-  const colorIndex = Math.floor(randomNumber(shipName) * theme.visualization.palette.length);
+function shipToColor(identifier: string, theme: GrafanaTheme2): string {
+  const colorIndex = Math.floor(randomNumber(identifier) * theme.visualization.palette.length);
   const color = theme.visualization.palette[colorIndex];
   return theme.visualization.getColorByName(color);
 }
@@ -73,7 +79,7 @@ function createPolylines(locations: ShipLocation[], options: AISPanelOptions, th
     const line = L.polyline(
       location.latlngs, {
         weight: options.strokeWidth,
-        color: shipNameToColor(location.shipName, theme)
+        color: shipToColor(location.mmsi, theme)
       }
     );
     showShipName(line, location.shipName, map);
@@ -102,7 +108,8 @@ function getLastValues(data: DataFrame[]): ShipInfo[] {
       time: lastValue(shipData.fields, '_time'),
       name: lastValue(shipData.fields, 'shipname'),
       course: parseFloat(lastValue(shipData.fields, 'course')),
-      heading: parseFloat(lastValue(shipData.fields, 'heading'))
+      heading: parseFloat(lastValue(shipData.fields, 'heading')),
+      mmsi: lastValue(shipData.fields, 'mmsi')
     };
     const lat = parseFloat(lastValue(shipData.fields, 'lat')) || null;
     const lon = parseFloat(lastValue(shipData.fields, 'lon')) || null;
@@ -117,10 +124,10 @@ function getLastValues(data: DataFrame[]): ShipInfo[] {
   return valuesPerShip;
 }
 
-function createShips(ships: ShipInfo[], shipLayer: L.LayerGroup, map: L.Map) {
+function createShips(ships: ShipInfo[], shipLayer: L.LayerGroup, map: L.Map, theme: GrafanaTheme2) {
   shipLayer.clearLayers();
   for (const ship of ships) {
-    const icon = createIcon('SHIP');
+    const icon = createIcon('SHIP', shipToColor(ship.mmsi, theme));
     if (!ship.lat || !ship.lon) {
       continue;
     }
@@ -133,7 +140,7 @@ function createShips(ships: ShipInfo[], shipLayer: L.LayerGroup, map: L.Map) {
 function createLegendItems(ships: ShipLocation[], theme: GrafanaTheme2): VizLegendItem[] {
   let legendItems: VizLegendItem[] = [];
   for (const [index, ship] of ships.entries()) {
-    const color = shipNameToColor(ship.shipName, theme);
+    const color = shipToColor(ship.shipName, theme);
     legendItems.push({
       label: ship.shipName,
       color: color,
@@ -160,7 +167,7 @@ export const AISPanel: React.FC<Props> = ({ options, data, width, height }) => {
     }
 
     const lastValues = getLastValues(data.series);
-    createShips(lastValues, shipLayer, map);
+    createShips(lastValues, shipLayer, map, theme);
   }  
 
   const renderMap = React.useCallback(renderData, [data, options, lineLayer, theme, map, legendItems]);

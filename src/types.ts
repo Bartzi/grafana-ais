@@ -11,11 +11,13 @@ export interface AISPanelOptions {
 
 export interface ShipLocation {
   shipName: string;
+  mmsi: string;
   latlngs: L.LatLngExpression[][];
 }
 
 export interface ShipInfo {
   name: string;
+  mmsi: string;
   time: number;
   course: number;
   heading: number;
