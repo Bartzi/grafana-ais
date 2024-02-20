@@ -27,7 +27,7 @@
         "uid": "a5fdb23b-bc73-4365-8a58-304d37116064"
       },
       "gridPos": {
-        "h": 25,
+        "h": 19,
         "w": 24,
         "x": 0,
         "y": 0
@@ -50,12 +50,117 @@
             "type": "influxdb",
             "uid": "a5fdb23b-bc73-4365-8a58-304d37116064"
           },
-          "query": "import \"influxdata/influxdb/schema\"\n\nfrom(bucket: \"test\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"lat\" or r[\"_field\"] == \"lon\" or r[\"_field\"] == \"heading\" or r[\"_field\"] == \"course\" or r[\"_field\"] == \"shipname\")\n  |> map(fn: (r) => ({ r with _value: string(v: r._value) })) \n  |> group(columns: [\"ship_id\"])\n  |> schema.fieldsAsCols()",
+          "query": "import \"influxdata/influxdb/schema\"\n\nfrom(bucket: \"ais\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ais\")\n  |> map(fn: (r) => ({ r with _value: string(v: r._value) })) \n  |> group(columns: [\"ship_id\"])\n  |> schema.fieldsAsCols()",
           "refId": "A"
         }
       ],
       "title": "Panel Title",
       "type": "dlr-ais-panel"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "a5fdb23b-bc73-4365-8a58-304d37116064"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "MMSI"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 121
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 19
+      },
+      "id": 3,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Time"
+          }
+        ]
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "a5fdb23b-bc73-4365-8a58-304d37116064"
+          },
+          "query": "import \"influxdata/influxdb/schema\"\nimport \"date\"\n\nfrom(bucket: \"ais\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ais\")\n  |> filter(fn: (r) => r[\"_field\"] == \"course\" or r[\"_field\"] == \"heading\" or r[\"_field\"] == \"mmsi\" or r[\"_field\"] == \"shipname\")\n  |> sort(columns: [\"_time\"], desc: false)\n  |> schema.fieldsAsCols()\n  |> filter(fn: (r) => r[\"shipname\"] != \"Unknown\")\n  |> last(column: \"_time\")\n  |> set(key: \"now\", value: string(v: now()))\n  |> map(fn: (r) => ({\n    r with ago: string(\n        v: duration(\n            v:  uint(v: date.truncate(t: time(v: r[\"now\"]), unit: 1m)) - \n                uint(v: date.truncate(t: r[\"_time\"], unit: 1m))\n        )\n    )\n  }))\n  |> keep(columns: [\"shipname\", \"course\", \"heading\", \"_time\", \"mmsi\", \"ago\"])\n  |> rename(columns: {shipname: \"Name\", course: \"Course\", heading: \"Heading\", mmsi: \"MMSI\", ago: \"Last Seen\", _time: \"Time\"})",
+          "refId": "A"
+        }
+      ],
+      "title": "Panel Title",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {
+              "Course": 2,
+              "Heading": 3,
+              "Last Seen": 4,
+              "MMSI": 0,
+              "Name": 1,
+              "Time": 5
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "table"
     }
   ],
   "refresh": "",
@@ -65,13 +170,13 @@
     "list": []
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-2d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Provisioned ais-panel dashboard",
   "uid": "df61ce9f-b21c-468c-ba3e-5c407e84faa2",
-  "version": 5,
+  "version": 1,
   "weekStart": ""
 }
