@@ -8,75 +8,10 @@ import 'leaflet/dist/leaflet.css';
 import { randomNumber } from 'utils/random';
 
 import './AISPanel.css';
+import { zip } from './utils';
+import { MAP_TILE, createIcon, createMarker } from './leaflet';
 
 interface Props extends PanelProps<AISPanelOptions> {}
-
-const MAP_TILE = L.tileLayer(
-  `https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`,
-  {
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  }
-);
-
-
-const GARS_ICON = L.icon({
-  iconUrl: '/public/plugins/dlr-ais-panel/img/gars.svg',
-  iconSize: [15, 45],
-});
-
-const SHIP_ICON = L.icon({
-  iconUrl: '/public/plugins/dlr-ais-panel/img/triangle.svg',
-  iconSize: [20, 20],
-  iconAnchor: [10, 10]
-});
-
-const proto_initIcon = L.Marker.prototype._initIcon;
-const proto_setPos = L.Marker.prototype._setPos;
-
-L.Marker.addInitHook(function (this: L.Marker) {
-  let anchor = this.options.icon && this.options.icon.options && this.options.icon.options.iconAnchor;
-  let iconAnchor = null;
-  if (anchor) {
-      iconAnchor = `${anchor[0]}px ${anchor[1]}px`;
-  }
-  this.options.rotationOrigin = this.options.rotationOrigin || iconAnchor || 'center bottom' ;
-  this.options.rotationAngle = this.options.rotationAngle || 0;
-
-  // Ensure marker keeps rotated during dragging
-  this.on('drag', (e: L.LeafletEvent) => { e.target._applyRotation(); });
-});
-
-L.Marker.include({
-  _initIcon: function() {
-      proto_initIcon.call(this);
-  },
-
-  _setPos: function (pos: number) {
-      proto_setPos.call(this, pos);
-      this._applyRotation();
-  },
-
-  _applyRotation: function () {
-      if(this.options.rotationAngle) {
-          this._icon.style[L.DomUtil.TRANSFORM+'Origin'] = this.options.rotationOrigin;
-          // for modern browsers, prefer the 3D accelerated version
-          this._icon.style[L.DomUtil.TRANSFORM] += ' rotateZ(' + this.options.rotationAngle + 'deg)';
-      }
-  },
-
-  setRotationAngle: function(angle: number) {
-    this.options.rotationAngle = angle;
-    this.update();
-    return this;
-  },
-
-  setRotationOrigin: function(origin: string) {
-    this.options.rotationOrigin = origin;
-    this.update();
-    return this;
-  }
-});
 
 const mapStyles: React.CSSProperties = {
   overflow: 'hidden',
@@ -84,12 +19,6 @@ const mapStyles: React.CSSProperties = {
   // height: '97%',
 };
 
-
-function zip(arrays: number[][]): L.LatLngExpression[][] {
-  return arrays[0].map(function(_,i){
-      return arrays.map(function(array){return array[i]})
-  });
-}
 
 function formatLocations(data: DataFrame[]): ShipLocation[] {
   let locations: ShipLocation[] = [];
@@ -156,7 +85,8 @@ function createPolylines(locations: ShipLocation[], options: AISPanelOptions, th
 function renderAISReceiverLocation(layer: L.LayerGroup, latitude: number, longitude: number) {
   console.log("render receiver location");
   layer.clearLayers();
-  const marker = L.marker([latitude, longitude], {icon: GARS_ICON});
+  const icon = createIcon('GARS');
+  const marker = createMarker(latitude, longitude, icon);
   layer.addLayer(marker);
 }
 
@@ -190,7 +120,11 @@ function getLastValues(data: DataFrame[]): ShipInfo[] {
 function createShips(ships: ShipInfo[], shipLayer: L.LayerGroup, map: L.Map) {
   shipLayer.clearLayers();
   for (const ship of ships) {
-    const marker = L.marker([ship.lat, ship.lon], {icon: SHIP_ICON, rotationAngle: ship.course, rotationOrigin: 'center'});
+    const icon = createIcon('SHIP');
+    if (!ship.lat || !ship.lon) {
+      continue;
+    }
+    const marker = createMarker(ship.lat, ship.lon, icon, ship.course);
     shipLayer.addLayer(marker);
     showShipName(marker, ship.name, map);
   }
