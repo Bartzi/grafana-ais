@@ -9,7 +9,7 @@ import { randomNumber } from 'utils/random';
 
 import './AISPanel.css';
 import { zip } from './utils';
-import { MAP_TILE, createIcon, createMarker } from './leaflet';
+import { MAP_TILE, createIcon, createMarker, drawDistanceCircles } from './leaflet';
 
 interface Props extends PanelProps<AISPanelOptions> {}
 
@@ -155,6 +155,7 @@ export const AISPanel: React.FC<Props> = ({ options, data, width, height }) => {
   const [lineLayer] = React.useState(L.layerGroup());
   const [receiverLayer] = React.useState(L.layerGroup());
   const [shipLayer] = React.useState(L.layerGroup());
+  const [circleLayer] = React.useState(L.layerGroup());
   const theme = useTheme2();
   let legendItems: VizLegendItem[] = [];
   
@@ -195,8 +196,10 @@ export const AISPanel: React.FC<Props> = ({ options, data, width, height }) => {
       lineLayer.addTo(newMap);
       receiverLayer.addTo(newMap);
       shipLayer.addTo(newMap);
+      circleLayer.addTo(newMap);
+      drawDistanceCircles(L.latLng(options.receiverLatitude, options.receiverLongitude), circleLayer);
     }
-  }, [map, lineLayer, receiverLayer, options]);
+  }, [map, lineLayer, receiverLayer, shipLayer, circleLayer, options]);
 
   return (
     <div className="parent">

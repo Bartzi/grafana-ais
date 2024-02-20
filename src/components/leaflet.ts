@@ -1,6 +1,7 @@
-import L from "leaflet";
+import L, { LatLng } from "leaflet";
 import GarsICON from "./gars_icon";
 import ShipIcon from "./ship_icon";
+import { GeodesicCircleClass } from "leaflet.geodesic/dist/leaflet.geodesic";
 
 const proto_initIcon = L.Marker.prototype._initIcon;
 const proto_setPos = L.Marker.prototype._setPos;
@@ -79,4 +80,18 @@ export function createIcon(iconName: 'GARS' | 'SHIP', color='black', className='
 
 export function createMarker(latitude: number, longitude: number, icon: L.DivIcon, rotationAngle=0, rotationOrigin='center'): L.Marker {
     return L.marker([latitude, longitude], {icon: icon, rotationAngle: rotationAngle, rotationOrigin: rotationOrigin});
+}
+
+const NAUTICAL_MILE_FACTOR = 1.852;
+
+export function drawDistanceCircles(center: LatLng, container: L.Map | L.LayerGroup) {
+  for (const distance of [5, 10, 15, 20, 30, 50]) {  // nautical miles
+    const circle = new GeodesicCircleClass(center, {
+      radius: distance * NAUTICAL_MILE_FACTOR * 1000,  // radius in meters
+      fill: false,
+      color: "#000000",
+      weight: 0.5
+    })
+    circle.addTo(container);
+  }
 }
