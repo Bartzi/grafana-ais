@@ -6,7 +6,7 @@ export function zip(arrays: number[][]): L.LatLngExpression[][] {
 
 function createPulsateElement(color: string): HTMLElement {
     const pulsator = document.createElement('div');
-    pulsator.setAttribute('class', 'pulsating');
+    pulsator.classList.add('pulsating');
     pulsator.setAttribute('style', `--pulsate-color: ${color}`);
     return pulsator;
 }

@@ -11,7 +11,7 @@ import { randomNumber } from 'utils/random';
 
 import './AISPanel.css';
 import { zip } from './utils';
-import { MAP_TILE, createIcon, createMarker, drawDistanceCircles } from './leaflet';
+import { MAP_TILE, createCircleControl, createIcon, createMarker, drawDistanceCircles } from './leaflet';
 
 interface Props extends PanelProps<AISPanelOptions> {}
 
@@ -91,7 +91,6 @@ function createPolylines(locations: ShipLocation[], options: AISPanelOptions, th
 }
 
 function renderAISReceiverLocation(layer: L.LayerGroup, latitude: number, longitude: number) {
-  console.log("render receiver location");
   layer.clearLayers();
   const icon = createIcon('GARS');
   const marker = createMarker(latitude, longitude, icon);
@@ -157,6 +156,7 @@ function createLegendItems(ships: ShipLocation[], theme: GrafanaTheme2): VizLege
 }
 
 export const AISPanel: React.FC<Props> = ({ options, data, width, height }) => {
+  const mapContainer = React.useRef<HTMLElement>();
   const [map, setMap] = React.useState<L.Map>(null);
   const [lineLayer] = React.useState(L.layerGroup());
   const [receiverLayer] = React.useState(L.layerGroup());
@@ -197,7 +197,7 @@ export const AISPanel: React.FC<Props> = ({ options, data, width, height }) => {
         layers: [MAP_TILE],
       };
 
-      const newMap = L.map('map', mapParams);
+      const newMap = L.map(mapContainer.current, mapParams);
       const measure = L.control.polylineMeasure({
         position: 'topleft',
         unit: 'nauticalmiles'
@@ -209,12 +209,15 @@ export const AISPanel: React.FC<Props> = ({ options, data, width, height }) => {
       shipLayer.addTo(newMap);
       circleLayer.addTo(newMap);
       drawDistanceCircles(L.latLng(options.receiverLatitude, options.receiverLongitude), circleLayer);
+      const circleControl = createCircleControl(circleLayer);
+      circleControl.addTo(newMap);
     }
+    return () => {map?.remove();}
   }, [map, lineLayer, receiverLayer, shipLayer, circleLayer, options]);
 
   return (
     <div className="parent">
-      <div id="map" style={mapStyles}/>
+      <div id="map" style={mapStyles} ref={el => mapContainer.current = el}/>
       <div className="legend">
         <VizLegend displayMode={LegendDisplayMode.List} placement='bottom' items={legendItems}></VizLegend>
       </div>

@@ -90,7 +90,7 @@ export function createMarker(latitude: number, longitude: number, icon: L.DivIco
 
 const NAUTICAL_MILE_FACTOR = 1.852;
 
-export function drawDistanceCircles(center: LatLng, container: L.Map | L.LayerGroup) {
+export function drawDistanceCircles(center: LatLng, layer: L.LayerGroup) {
   for (const distance of [5, 10, 15, 20, 30, 50]) {  // nautical miles
     const circle = new GeodesicCircleClass(center, {
       radius: distance * NAUTICAL_MILE_FACTOR * 1000,  // radius in meters
@@ -99,6 +99,40 @@ export function drawDistanceCircles(center: LatLng, container: L.Map | L.LayerGr
       weight: 0.5,
       steps: 50
     })
-    circle.addTo(container);
+    circle.addTo(layer);
   }
+}
+
+export function createCircleControl(layer: L.LayerGroup): L.Control {
+  const circleControl = L.Control.extend({
+    options: {
+      position: 'topleft'
+    },
+    onAdd: function(map: L.Map): HTMLElement {
+      const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+      const button = L.DomUtil.create('a', 'ais-panel-circle-control');
+      button.setAttribute('role', 'button');
+      const image = L.DomUtil.create('img', 'ais-panel-circle-control-image');
+      image.setAttribute('src', '/public/plugins/dlr-ais-panel/img/double-circle.svg');
+      image.setAttribute('style', 'width: 70%; height: 70%;');
+      button.append(image);
+      L.DomEvent.on(button, 'click', () => {
+        const layerAdded = map.hasLayer(layer);
+        if (layerAdded) {
+          map.removeLayer(layer);
+        } else {
+          map.addLayer(layer);
+        }
+      }, this);
+      this.button = button;
+      container.append(this.button);
+      return container;
+    },
+
+    onRemove(map: L.Map) {
+      map.removeLayer(layer);
+      L.DomEvent.off(this.button);
+    }
+  });
+  return new circleControl();
 }
