@@ -46,10 +46,25 @@ export const plugin = new PanelPlugin<AISPanelOptions>(AISPanel).setPanelOptions
     category = ["Render Settings"];
     builder
     .addNumberInput({
+      category,
       path: 'strokeWidth',
       name: 'Stroke Width',
       description: 'Stroke width of the ship trails',
       defaultValue: 3,
+    })
+    .addNumberInput({
+      category,
+      path: 'timeUntilSignalStale',
+      name: 'Time until Signal Stale',
+      description: 'the time in minutes until a ship is marked as signal stale (not pulsating anymore)',
+      defaultValue: 8,
+    })
+    .addNumberInput({
+      category,
+      path: 'timeUntilSignalLost',
+      name: 'Time until Signal Lost',
+      description: 'the time in minutes until a ship is marked as signal lost (marker black)',
+      defaultValue: 30,
     });
 
     return builder;

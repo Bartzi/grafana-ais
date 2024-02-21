@@ -7,6 +7,8 @@ export interface AISPanelOptions {
   receiverLongitude: number;
   zoom: number;
   strokeWidth: number;
+  timeUntilSignalStale: number;
+  timeUntilSignalLost: number;
 }
 
 export interface ShipLocation {
@@ -23,4 +25,9 @@ export interface ShipInfo {
   heading: number;
   lat?: number;
   lon?: number;
+}
+
+export interface SignalMarkTimes {
+  timeUntilStale: number;
+  timeUntilLost: number;
 }

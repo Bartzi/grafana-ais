@@ -60,6 +60,7 @@
     "node": ">=20"
   },
   "dependencies": {
+    "@ansur/leaflet-pulse-icon": "^0.1.1",
     "@emotion/css": "11.10.6",
     "@grafana/data": "10.0.3",
     "@grafana/runtime": "10.0.3",

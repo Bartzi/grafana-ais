@@ -1,7 +1,7 @@
 import React from 'react';
 import L from "leaflet";
 import { DataFrame, Field, GrafanaTheme2, PanelProps } from '@grafana/data';
-import { AISPanelOptions, ShipInfo, ShipLocation } from 'types';
+import { AISPanelOptions, ShipInfo, ShipLocation, SignalMarkTimes } from 'types';
 import { LegendDisplayMode, VizLegend, VizLegendItem, useTheme2 } from '@grafana/ui';
 
 import 'leaflet/dist/leaflet.css';
@@ -124,10 +124,14 @@ function getLastValues(data: DataFrame[]): ShipInfo[] {
   return valuesPerShip;
 }
 
-function createShips(ships: ShipInfo[], shipLayer: L.LayerGroup, map: L.Map, theme: GrafanaTheme2) {
+function createShips(ships: ShipInfo[], shipLayer: L.LayerGroup, map: L.Map, theme: GrafanaTheme2, staleTimes: SignalMarkTimes) {
   shipLayer.clearLayers();
+  const now = Date.now();
   for (const ship of ships) {
-    const icon = createIcon('SHIP', shipToColor(ship.mmsi, theme));
+    const lastSeenInMS = now - ship.time;
+    const lastSeenInMinutes = lastSeenInMS / 1000 / 60;
+    const shipColor = lastSeenInMinutes <= staleTimes.timeUntilLost ? shipToColor(ship.mmsi, theme) : 'black';
+    const icon = createIcon('SHIP', shipColor, lastSeenInMinutes <= staleTimes.timeUntilStale);
     if (!ship.lat || !ship.lon) {
       continue;
     }
@@ -168,7 +172,7 @@ export const AISPanel: React.FC<Props> = ({ options, data, width, height }) => {
     }
 
     const lastValues = getLastValues(data.series);
-    createShips(lastValues, shipLayer, map, theme);
+    createShips(lastValues, shipLayer, map, theme, {timeUntilStale: options.timeUntilSignalStale, timeUntilLost: options.timeUntilSignalLost});
   }  
 
   const renderMap = React.useCallback(renderData, [data, options, lineLayer, theme, map, legendItems]);
