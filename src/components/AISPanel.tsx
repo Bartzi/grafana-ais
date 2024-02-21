@@ -5,6 +5,8 @@ import { AISPanelOptions, ShipInfo, ShipLocation, SignalMarkTimes } from 'types'
 import { LegendDisplayMode, VizLegend, VizLegendItem, useTheme2 } from '@grafana/ui';
 
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.polylinemeasure/Leaflet.PolylineMeasure.js'
+import 'leaflet.polylinemeasure/Leaflet.PolylineMeasure.css';
 import { randomNumber } from 'utils/random';
 
 import './AISPanel.css';
@@ -196,6 +198,11 @@ export const AISPanel: React.FC<Props> = ({ options, data, width, height }) => {
       };
 
       const newMap = L.map('map', mapParams);
+      const measure = L.control.polylineMeasure({
+        position: 'topleft',
+        unit: 'nauticalmiles'
+      });
+      measure.addTo(newMap);
       setMap(newMap);
       lineLayer.addTo(newMap);
       receiverLayer.addTo(newMap);
