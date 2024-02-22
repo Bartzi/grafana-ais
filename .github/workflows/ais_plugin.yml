@@ -30,7 +30,7 @@ jobs:
         filename: 'ais_plugin.zip'
         directory: 'dist'
     - name: Upload Release
-      uses: ncipollo/release-action@v1
+      uses: ncipollo/release-action@v1.12.0
       with:
         artifacts: "ais_plugin.zip"
         allowUpdates: true
