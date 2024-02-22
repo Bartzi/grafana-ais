@@ -1,9 +1,9 @@
 name: Build and Release Plugin
 
-on: [push]
-  # push:
-  #   tags:
-  #   - '*'
+on: 
+  push:
+    tags:
+    - '*'
 
 jobs:
   build:
