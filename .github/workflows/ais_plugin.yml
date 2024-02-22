@@ -24,7 +24,7 @@ jobs:
     - name: Build
       run: |
         npm install
-        npm build
+        npm run build
   release:
     runs-on: ubuntu-latest
     needs: 
