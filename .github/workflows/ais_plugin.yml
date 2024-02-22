@@ -29,8 +29,6 @@ jobs:
         type: 'zip'
         filename: 'ais_plugin.zip'
         directory: 'dist'
-    - name: Check Files
-      run: pwd && ls && ls dist
     - name: Upload Release
       uses: ncipollo/release-action@v1.12.0
       with:
