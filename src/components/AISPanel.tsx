@@ -93,7 +93,7 @@ function createPolylines(locations: ShipLocation[], options: AISPanelOptions, th
 function renderAISReceiverLocation(layer: L.LayerGroup, latitude: number, longitude: number) {
   layer.clearLayers();
   const icon = createIcon('GARS');
-  const marker = createMarker(latitude, longitude, icon);
+  const marker = createMarker(latitude, longitude, icon, false);
   layer.addLayer(marker);
 }
 

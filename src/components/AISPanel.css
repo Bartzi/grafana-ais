@@ -51,5 +51,4 @@
     box-shadow: 0 0 6px 2px var(--pulsate-color);
     animation: pulsate 2s ease-out;
     animation-iteration-count: infinite;
-    animation-delay: 2s;
 }

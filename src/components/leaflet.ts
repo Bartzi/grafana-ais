@@ -84,19 +84,19 @@ export function createIcon(iconName: 'GARS' | 'SHIP', color='black', pulsate=fal
     return L.divIcon(options);
 }
 
-export function createMarker(latitude: number, longitude: number, icon: L.DivIcon, rotationAngle=0, rotationOrigin='center'): L.Marker {
-    return L.marker([latitude, longitude], {icon: icon, rotationAngle: rotationAngle, rotationOrigin: rotationOrigin});
+export function createMarker(latitude: number, longitude: number, icon: L.DivIcon, interactive=true, rotationAngle=0, rotationOrigin='center'): L.Marker {
+    return L.marker([latitude, longitude], {icon: icon, rotationAngle: rotationAngle, rotationOrigin: rotationOrigin, interactive: interactive});
 }
 
 const NAUTICAL_MILE_FACTOR = 1.852;
 
 export function drawDistanceCircles(center: LatLng, layer: L.LayerGroup) {
-  for (const distance of [5, 10, 15, 20, 30, 50]) {  // nautical miles
+  for (const distance of [10, 20, 30, 40]) {  // nautical miles
     const circle = new GeodesicCircleClass(center, {
       radius: distance * NAUTICAL_MILE_FACTOR * 1000,  // radius in meters
       fill: false,
-      color: "#000000",
-      weight: 0.5,
+      color: "rgba(0, 0, 0, 0.1)",
+      weight: 2,
       steps: 50
     })
     circle.addTo(layer);
@@ -105,8 +105,9 @@ export function drawDistanceCircles(center: LatLng, layer: L.LayerGroup) {
 
 export function createCircleControl(layer: L.LayerGroup): L.Control {
   const circleControl = L.Control.extend({
+    button: new HTMLElement(),
     options: {
-      position: 'topleft'
+      position: 'topleft',
     },
     onAdd: function(map: L.Map): HTMLElement {
       const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
