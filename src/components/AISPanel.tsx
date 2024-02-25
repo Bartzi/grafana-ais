@@ -144,12 +144,12 @@ function createShips(ships: ShipInfo[], shipLayer: L.LayerGroup, map: L.Map, the
 
 function createLegendItems(ships: ShipLocation[], theme: GrafanaTheme2): VizLegendItem[] {
   let legendItems: VizLegendItem[] = [];
-  for (const [index, ship] of ships.entries()) {
+  for (const ship of ships) {
     const color = shipToColor(ship.mmsi, theme);
     legendItems.push({
       label: ship.shipName,
       color: color,
-      yAxis: index
+      yAxis: 0
     })
   }
   return legendItems

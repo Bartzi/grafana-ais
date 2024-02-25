@@ -105,7 +105,6 @@ export function drawDistanceCircles(center: LatLng, layer: L.LayerGroup) {
 
 export function createCircleControl(layer: L.LayerGroup): L.Control {
   const circleControl = L.Control.extend({
-    button: new HTMLElement(),
     options: {
       position: 'topleft',
     },
