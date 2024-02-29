@@ -85,7 +85,7 @@ export function createIcon(iconName: 'GARS' | 'SHIP', color='black', pulsate=fal
 }
 
 export function createMarker(latitude: number, longitude: number, icon: L.DivIcon, interactive=true, rotationAngle=0, rotationOrigin='center'): L.Marker {
-    return L.marker([latitude, longitude], {icon: icon, rotationAngle: rotationAngle, rotationOrigin: rotationOrigin, interactive: interactive});
+  return L.marker([latitude, longitude], {icon: icon, rotationAngle: rotationAngle, rotationOrigin: rotationOrigin, interactive: interactive});
 }
 
 const NAUTICAL_MILE_FACTOR = 1.852;

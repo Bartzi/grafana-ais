@@ -136,7 +136,7 @@ function createShips(ships: ShipInfo[], shipLayer: L.LayerGroup, map: L.Map, the
     if (!ship.lat || !ship.lon) {
       continue;
     }
-    const marker = createMarker(ship.lat, ship.lon, icon, ship.course);
+    const marker = createMarker(ship.lat, ship.lon, icon, false, ship.course);
     shipLayer.addLayer(marker);
     showShipName(marker, ship.name, map);
   }
