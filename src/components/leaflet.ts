@@ -112,6 +112,7 @@ export function createCircleControl(layer: L.LayerGroup): L.Control {
       const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
       const button = L.DomUtil.create('a', 'ais-panel-circle-control');
       button.setAttribute('role', 'button');
+      button.setAttribute('title', "Toggle Distance Circles");
       const image = L.DomUtil.create('img', 'ais-panel-circle-control-image');
       image.setAttribute('src', '/public/plugins/dlr-ais-panel/img/double-circle.svg');
       image.setAttribute('style', 'width: 70%; height: 70%;');
@@ -135,4 +136,31 @@ export function createCircleControl(layer: L.LayerGroup): L.Control {
     }
   });
   return new circleControl();
+}
+
+
+export function createReloadButton(position="bottomleft"): L.Control {
+  const reloadButton = L.Control.extend({
+    options: {
+      position: position
+    },
+    onAdd: function(): HTMLElement {
+      const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+      const button = L.DomUtil.create('a');
+      container.append(button);
+      button.setAttribute('role', 'button');
+      button.setAttribute('title', "Reload Page");
+      button.setAttribute('style', "font-size: large;");
+      button.textContent = "⟳";
+      L.DomEvent.on(button, 'click', () => {
+        window.location.reload();
+      });
+      this.button = button;
+      return container;
+    },
+    onRemove: function() {
+      L.DomEvent.off(this.button);
+    }
+  });
+  return new reloadButton();
 }

@@ -11,7 +11,7 @@ import { randomNumber } from 'utils/random';
 
 import './AISPanel.css';
 import { zip } from './utils';
-import { MAP_TILE, createCircleControl, createIcon, createMarker, drawDistanceCircles } from './leaflet';
+import { MAP_TILE, createCircleControl, createIcon, createMarker, createReloadButton, drawDistanceCircles } from './leaflet';
 
 interface Props extends PanelProps<AISPanelOptions> {}
 
@@ -211,6 +211,7 @@ export const AISPanel: React.FC<Props> = ({ options, data, width, height }) => {
       drawDistanceCircles(L.latLng(options.receiverLatitude, options.receiverLongitude), circleLayer);
       const circleControl = createCircleControl(circleLayer);
       circleControl.addTo(newMap);
+      createReloadButton('topright').addTo(newMap);
     }
     return () => {map?.remove();}
   }, [map, lineLayer, receiverLayer, shipLayer, circleLayer, options]);
